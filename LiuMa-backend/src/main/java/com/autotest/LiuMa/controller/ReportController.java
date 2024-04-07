@@ -10,7 +10,6 @@ import com.autotest.LiuMa.service.ReportService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -30,6 +29,11 @@ public class ReportController {
     @GetMapping("/run/{reportId}")
     public ReportDTO getPlanResult(@PathVariable String reportId){
         return reportService.getPlanResult(reportId);
+    }
+
+    @GetMapping("/export/{reportId}")
+    public void Exporter(@PathVariable String reportId){
+
     }
 
     @PostMapping("/delete")

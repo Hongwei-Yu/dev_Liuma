@@ -62,6 +62,12 @@
 			<artifactId>fastjson</artifactId>
 			<version>1.2.83</version>
 		</dependency>
+		<!--    引入easyexcel   -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>easyexcel</artifactId>
+			<version>3.3.2</version>
+		</dependency>
 		<!-- 引入jwt-->
 		<dependency>
 			<groupId>com.auth0</groupId>
@@ -116,6 +122,7 @@
 			<artifactId>json-path</artifactId>
 			<version>2.4.0</version>
 		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>

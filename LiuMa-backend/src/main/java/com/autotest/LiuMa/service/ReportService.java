@@ -11,7 +11,6 @@ import com.autotest.LiuMa.dto.ReportDTO;
 import com.autotest.LiuMa.request.QueryRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -114,5 +113,11 @@ public class ReportService {
         }
         report.setCollectionList(reportCollectionList);
         return report;
+    }
+
+    public void ReportExporter(String reportId){
+        ReportDTO reports = getPlanResult(reportId);
+
+
     }
 }
