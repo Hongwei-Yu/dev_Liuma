@@ -1,5 +1,6 @@
 package com.autotest.LiuMa.controller;
 
+import com.autotest.LiuMa.common.utils.FileUtils;
 import com.autotest.LiuMa.common.utils.PageUtils;
 import com.autotest.LiuMa.common.utils.Pager;
 import com.autotest.LiuMa.database.domain.Report;
@@ -11,6 +12,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 
@@ -32,8 +34,8 @@ public class ReportController {
     }
 
     @GetMapping("/export/{reportId}")
-    public void Exporter(@PathVariable String reportId){
-
+    public void Exporter(@PathVariable String reportId, HttpServletResponse response) throws Exception {
+        FileUtils.downloadFile(reportService.ReportExporter(reportId),response);
     }
 
     @PostMapping("/delete")

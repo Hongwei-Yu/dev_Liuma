@@ -1,7 +1,15 @@
 package com.autotest.LiuMa.service;
 
+//import cn.hutool.core.io.FileUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSONObject;
 import com.autotest.LiuMa.common.constants.ReportStatus;
+import com.autotest.LiuMa.common.excel.*;
+import com.autotest.LiuMa.common.exception.LMException;
+//import com.autotest.LiuMa.common.utils.FileUtils;
+import com.autotest.LiuMa.common.utils.ZipUtils;
 import com.autotest.LiuMa.database.domain.Report;
 import com.autotest.LiuMa.database.mapper.*;
 import com.autotest.LiuMa.dto.ReportCollectionCaseDTO;
@@ -12,6 +20,16 @@ import com.autotest.LiuMa.request.QueryRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
+//import java.io.File;
+import java.io.IOException;
+//import java.io.Writer;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -45,40 +63,40 @@ public class ReportService {
         reportMapper.deleteReport(report.getId());
     }
 
-    public List<ReportDTO> getReportList(QueryRequest request){
-        if(request.getCondition() != null && !request.getCondition().equals("")){
-            request.setCondition(("%"+request.getCondition()+"%"));
+    public List<ReportDTO> getReportList(QueryRequest request) {
+        if (request.getCondition() != null && !request.getCondition().equals("")) {
+            request.setCondition(("%" + request.getCondition() + "%"));
         }
         return reportMapper.getReportList(request);
     }
 
-    public JSONObject getLastApiReport(String apiId){
+    public JSONObject getLastApiReport(String apiId) {
         JSONObject result = new JSONObject();
         String report = reportCollectionCaseApiMapper.getLastApiReport(apiId);
-        if(report == null){
+        if (report == null) {
             return null;
         }
-        if(!report.contains("<br><b>响应体: ") || !report.contains("</b><br><br>")){
+        if (!report.contains("<br><b>响应体: ") || !report.contains("</b><br><br>")) {
             return null;
         }
-        String response = report.substring(report.indexOf("<br><b>响应体: ")+12, report.indexOf("</b><br><br>"));
-        try{
+        String response = report.substring(report.indexOf("<br><b>响应体: ") + 12, report.indexOf("</b><br><br>"));
+        try {
             result = JSONObject.parseObject(response);
-        }catch (Exception e){
+        } catch (Exception e) {
             return result;
         }
         return result;
     }
 
-    public ReportCollectionCaseDTO getCaseResult(String taskId){
+    public ReportCollectionCaseDTO getCaseResult(String taskId) {
         ReportCollectionCaseDTO reportCase = reportCollectionCaseMapper.getCaseReportByTaskId(taskId);
-        if(reportCase != null){
+        if (reportCase != null) {
             List<ReportCollectionCaseTransDTO> transList;
-            if(reportCase.getCaseType().equals("API")){
+            if (reportCase.getCaseType().equals("API")) {
                 transList = reportCollectionCaseApiMapper.getReportCaseActionList(reportCase.getId());
-            }else if(reportCase.getCaseType().equals("WEB")){
+            } else if (reportCase.getCaseType().equals("WEB")) {
                 transList = reportCollectionCaseWebMapper.getReportCaseActionList(reportCase.getId());
-            }else {
+            } else {
                 transList = reportCollectionCaseAppMapper.getReportCaseActionList(reportCase.getId());
             }
             reportCase.setTransList(transList);
@@ -87,18 +105,18 @@ public class ReportService {
         return reportCase;
     }
 
-    public ReportDTO getPlanResult(String reportId){
+    public ReportDTO getPlanResult(String reportId) {
         ReportDTO report = reportMapper.getReportDetail(reportId);
         List<ReportCollectionDTO> reportCollectionList = reportCollectionMapper.getReportCollectionList(reportId);
-        for(ReportCollectionDTO reportCollection:reportCollectionList){
+        for (ReportCollectionDTO reportCollection : reportCollectionList) {
             List<ReportCollectionCaseDTO> reportCollectionCaseList = reportCollectionCaseMapper.getReportCollectionCaseList(reportCollection.getId());
-            for(ReportCollectionCaseDTO reportCollectionCase: reportCollectionCaseList){
+            for (ReportCollectionCaseDTO reportCollectionCase : reportCollectionCaseList) {
                 List<ReportCollectionCaseTransDTO> transList;
-                if(reportCollectionCase.getCaseType().equals("API")){
+                if (reportCollectionCase.getCaseType().equals("API")) {
                     transList = reportCollectionCaseApiMapper.getReportCaseActionList(reportCollectionCase.getId());
-                }else if(reportCollectionCase.getCaseType().equals("WEB")){
+                } else if (reportCollectionCase.getCaseType().equals("WEB")) {
                     transList = reportCollectionCaseWebMapper.getReportCaseActionList(reportCollectionCase.getId());
-                }else {
+                } else {
                     transList = reportCollectionCaseAppMapper.getReportCaseActionList(reportCollectionCase.getId());
                 }
                 reportCollectionCase.setTransList(transList);
@@ -115,8 +133,46 @@ public class ReportService {
         return report;
     }
 
-    public void ReportExporter(String reportId){
+    public String ReportExporter(String reportId) throws Exception {
+        Date date=new Date();//此时date为当前的时间
+        SimpleDateFormat dateFormat=new SimpleDateFormat("YYYY-MM-dd");//设置当前时间的格式，为年-月-日
+
+        String dirName = "/usr/local/Liuma/reporter/"+dateFormat.format(date);
+        Path path = Paths.get(dirName);
+        try {
+            Path newDir = Files.createDirectory(path);
+        } catch (FileAlreadyExistsException e) {
+            // the directory already exists.
+        } catch (IOException e) {
+            //something else went wrong
+            e.printStackTrace();
+        }
         ReportDTO reports = getPlanResult(reportId);
+        String fileName = dirName+"/"+reports.getName() +".xlsx";
+        try (ExcelWriter excelWriter = EasyExcel.write(fileName).build()) {
+            WriteSheet HomePage = EasyExcel.writerSheet(0,reports.getName()).head(PlanReport.class).build();
+            excelWriter.write((Collection<?>) ExportUtils.createHomePage(reports),HomePage);
+            WriteSheet CollectionPage = EasyExcel.writerSheet(1,"测试集合汇总信息").head(ReportCollection.class).build();
+            excelWriter.write(ExportUtils.CreateCollection(reports),CollectionPage);
+            reports.getCollectionList().forEach(reportCollectionDTO -> {
+                try(ExcelWriter CollectionWriter = EasyExcel.write(dirName+"/"+reportCollectionDTO.getCollectionName()+".xlsx").build()){
+                    WriteSheet CollectionHomePage = EasyExcel.writerSheet(0,reportCollectionDTO.getCollectionName()+"用例情况汇总").head(ReportCollectionCase.class).build();
+                    CollectionWriter.write(ExportUtils.CreateCollectionCase(reportCollectionDTO),CollectionHomePage);
+                    int i = 0;
+                    reportCollectionDTO.getCaseList().forEach(reportCollectionCaseDTO -> {
+                        WriteSheet CollectionCasePage = EasyExcel.writerSheet(reportCollectionCaseDTO.getCollectionCaseIndex(),reportCollectionCaseDTO.getCaseName()).head(ReportCollectionCaseTrans.class).build();
+                        CollectionWriter.write(ExportUtils.CreateCollectionCasetrans(reportCollectionCaseDTO),CollectionCasePage);
+                    });
+                }
+            });
+        }
+        try { // 打包文件
+            ZipUtils.compress(dirName,dirName+"/zip", reports.getId());
+
+            return dirName+"/zip"+reports.getId()+".zip";
+        } catch (Exception exception) {
+            throw new LMException("json文件压缩失败");
+        }
 
 
     }
