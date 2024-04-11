@@ -20,47 +20,47 @@ public class LoginInterceptor implements HandlerInterceptor {
      * @return
      * @throws Exception
      */
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String path = request.getServletPath();
-        if (path.matches(RequestPath.LOGIN_PATH.path) || path.matches(RequestPath.ENGINE_TOKEN_PATH.path)
-                || path.matches(RequestPath.REGISTER_PATH.path) || path.matches(RequestPath.SCREENSHOT_PATH.path)
-                || path.matches(RequestPath.DOWNLOAD_PATH.path) || path.matches(RequestPath.RUN_PATH.path)) {
-            // 平台登录注册接口 引擎获取token接口 测试截图预览 不用拦截
-            return true;
-        } else if (path.matches(RequestPath.ENGINE_PATH.path)){
-            // 引擎拦截验证
-            String token = request.getHeader("token");
-            if (token == null){
-                throw new TokenEmptyException("token不能为空");
-            }
-            DecodedJWT jwt = JwtUtils.verifyToken(token);
-            return true;
-        } else {
-            // 平台拦截验证
-            String token = request.getHeader("token");
-            if (token == null){
-                throw new TokenEmptyException("token不能为空");
-            }
-            DecodedJWT jwt = JwtUtils.verifyToken(token);
-
-            request.getSession(true).setAttribute("userId", jwt.getClaim("id").asString());
-            request.getSession(true).setAttribute("account", jwt.getClaim("account").asString());
-
-            Date lastDate = jwt.getIssuedAt(); // 获取签发时间
-            if((new Date()).getTime() - lastDate.getTime() >= 10*60*1000){
-                // 超过十分钟则刷新令牌 并放在header里返回
-                User user = new User();
-                user.setId(jwt.getClaim("id").asString());
-                user.setUsername(jwt.getClaim("username").asString());
-                user.setAccount(jwt.getClaim("account").asString());
-                user.setPassword(jwt.getClaim("password").asString());
-                String newToken = JwtUtils.createWebToken(user);
-                response.addHeader("token", newToken);
-            }else {
-                response.addHeader("token", token);
-            }
-            return true;
-        }
-    }
+//    @Override
+//    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+//        String path = request.getServletPath();
+//        if (path.matches(RequestPath.LOGIN_PATH.path) || path.matches(RequestPath.ENGINE_TOKEN_PATH.path)
+//                || path.matches(RequestPath.REGISTER_PATH.path) || path.matches(RequestPath.SCREENSHOT_PATH.path)
+//                || path.matches(RequestPath.DOWNLOAD_PATH.path) || path.matches(RequestPath.RUN_PATH.path)) {
+//            // 平台登录注册接口 引擎获取token接口 测试截图预览 不用拦截
+//            return true;
+//        } else if (path.matches(RequestPath.ENGINE_PATH.path)){
+//            // 引擎拦截验证
+//            String token = request.getHeader("token");
+//            if (token == null){
+//                throw new TokenEmptyException("token不能为空");
+//            }
+//            DecodedJWT jwt = JwtUtils.verifyToken(token);
+//            return true;
+//        } else {
+//            // 平台拦截验证
+//            String token = request.getHeader("token");
+//            if (token == null){
+//                throw new TokenEmptyException("token不能为空");
+//            }
+//            DecodedJWT jwt = JwtUtils.verifyToken(token);
+//
+//            request.getSession(true).setAttribute("userId", jwt.getClaim("id").asString());
+//            request.getSession(true).setAttribute("account", jwt.getClaim("account").asString());
+//
+//            Date lastDate = jwt.getIssuedAt(); // 获取签发时间
+//            if((new Date()).getTime() - lastDate.getTime() >= 10*60*1000){
+//                // 超过十分钟则刷新令牌 并放在header里返回
+//                User user = new User();
+//                user.setId(jwt.getClaim("id").asString());
+//                user.setUsername(jwt.getClaim("username").asString());
+//                user.setAccount(jwt.getClaim("account").asString());
+//                user.setPassword(jwt.getClaim("password").asString());
+//                String newToken = JwtUtils.createWebToken(user);
+//                response.addHeader("token", newToken);
+//            }else {
+//                response.addHeader("token", token);
+//            }
+//            return true;
+//        }
+//    }
 }

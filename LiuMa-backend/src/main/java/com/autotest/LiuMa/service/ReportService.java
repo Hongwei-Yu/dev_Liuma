@@ -137,7 +137,8 @@ public class ReportService {
         Date date=new Date();//此时date为当前的时间
         SimpleDateFormat dateFormat=new SimpleDateFormat("YYYY-MM-dd");//设置当前时间的格式，为年-月-日
 
-        String dirName = "/usr/local/Liuma/reporter/"+dateFormat.format(date);
+//        String dirName = "/usr/local/Liuma/reporter/"+dateFormat.format(date);
+        String dirName = "D://Liuma"+dateFormat.format(date);
         Path path = Paths.get(dirName);
         try {
             Path newDir = Files.createDirectory(path);
@@ -148,10 +149,10 @@ public class ReportService {
             e.printStackTrace();
         }
         ReportDTO reports = getPlanResult(reportId);
-        String fileName = dirName+"/"+reports.getName() +".xlsx";
+        String fileName = dirName+"//"+"report" +".xlsx";
         try (ExcelWriter excelWriter = EasyExcel.write(fileName).build()) {
-            WriteSheet HomePage = EasyExcel.writerSheet(0,reports.getName()).head(PlanReport.class).build();
-            excelWriter.write((Collection<?>) ExportUtils.createHomePage(reports),HomePage);
+            WriteSheet HomePage = EasyExcel.writerSheet(0,reports.getName().substring(6).replace(":","-")).head(PlanReport.class).build();
+            excelWriter.write(ExportUtils.createHomePage(reports),HomePage);
             WriteSheet CollectionPage = EasyExcel.writerSheet(1,"测试集合汇总信息").head(ReportCollection.class).build();
             excelWriter.write(ExportUtils.CreateCollection(reports),CollectionPage);
             reports.getCollectionList().forEach(reportCollectionDTO -> {

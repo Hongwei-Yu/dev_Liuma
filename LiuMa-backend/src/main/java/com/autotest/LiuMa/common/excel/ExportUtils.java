@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExportUtils{
-    public static PlanReport createHomePage(ReportDTO reports){
+    public static List<PlanReport> createHomePage(ReportDTO reports){
+        List<PlanReport> HomePages = new ArrayList<>();
         PlanReport HomePage = new PlanReport();
         HomePage.setName(reports.getName());
         HomePage.setUsername(reports.getUsername());
@@ -26,7 +27,8 @@ public class ExportUtils{
         HomePage.setPassRate(reports.getPassRate());
         HomePage.setProgress(reports.getProgress());
         HomePage.setErrorCount(reports.getErrorCount());
-        return HomePage;
+        HomePages.add(HomePage);
+        return HomePages;
     }
 
     public static List<ReportCollection> CreateCollection(ReportDTO reports){
