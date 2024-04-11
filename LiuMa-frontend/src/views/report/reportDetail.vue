@@ -1,8 +1,8 @@
 /**
  * 测试追踪  报告详情
  */
-<template>
-  <div>
+<template >
+  <div class="reporter" ref="reporter">
     <!-- 报告基本信息 -->
     <div class="report-header">
         <div style="font-size: 20px">
@@ -35,7 +35,10 @@
             <el-col :span="5">
                 <span>执行时长： {{report.during}}</span>
             </el-col>
-        </el-row>  
+          <el-col :span="5">
+           <el-button @click="downloadHtml"> <span>点击下载</span></el-button>
+          </el-col>
+        </el-row>
     </div>
     <!--结果列表-->
     <el-table size="small" :data="report.collectionList" stripe v-loading="loading">
@@ -109,9 +112,11 @@
 
 <script>
 import {timestampToTime} from '@/utils/util'
+
 export default {
     components: {
-        'el-image-viewer': () => import('element-ui/packages/image/src/image-viewer')
+        'el-image-viewer': () => import('element-ui/packages/image/src/image-viewer'),
+      'VueHtmlToPaper':this.VueHtmlToPaper,
     },
     data() {
         return{
@@ -126,6 +131,28 @@ export default {
         this.getdata(this.$route.params);
     },
     methods: {
+       download(){
+         let reportId = this.$route.params.reportId;
+         let url = "/autotest/report/export/" + reportId;
+         window.console.log("开始下载")
+         window.location.href=url;
+       },
+      downloadHtml(){
+          const link = document.createElement('a')
+          document.body.appendChild(link)
+          let html = this.getHtml()
+          const url = URL.createObjectURL(new Blob([html], { type: "text/plain;charset='utf-8'" }))
+          link.href = url
+          let fileName = this.$route.params.name
+          link.download = fileName + '.html'
+          link.click()
+          window.URL.revokeObjectURL(url)
+      },
+      getHtml() {
+         let html=window.document.getElementsByClassName("reporter");
+         console.log(html[0].innerHTML)
+        return html[0].innerHTML
+      },
         getdata(param) {
             let reportId = param.reportId;
             this.loading = true;

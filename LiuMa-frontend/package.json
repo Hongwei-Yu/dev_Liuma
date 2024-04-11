@@ -21,6 +21,7 @@
     "sortablejs": "^1.14.0",
     "vconsole": "^3.9.1",
     "vue": "^2.5.2",
+    "vue-html-to-paper": "^1.4.1",
     "vue-json-editor": "^1.4.3",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"

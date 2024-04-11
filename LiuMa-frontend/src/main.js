@@ -19,11 +19,16 @@ import '../static/css/index.css';
 // 引入axios
 import ajax from './utils/ajax';
 import axios from 'axios';
+
+
 Vue.use(ajax);
 Vue.prototype.$axios = axios;
 
 Vue.config.productionTip = false;
 
+// // 引入vue-html-to-paper
+// import {VueHtmlToPaper} from 'vue-html-to-paper';
+// Vue.use(VueHtmlToPaper);
 // 过滤器
 import * as custom from './utils/util'
 Object.keys(custom).forEach(key => {
