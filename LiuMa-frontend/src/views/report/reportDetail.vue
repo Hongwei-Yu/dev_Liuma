@@ -149,9 +149,7 @@ export default {
           window.URL.revokeObjectURL(url)
       },
       getHtml() {
-         let html=window.document.getElementsByClassName("reporter");
-         console.log(html[0].innerHTML)
-        return html[0].innerHTML
+
       },
         getdata(param) {
             let reportId = param.reportId;
