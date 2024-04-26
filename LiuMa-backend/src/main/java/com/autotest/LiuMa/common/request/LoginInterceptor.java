@@ -23,7 +23,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String path = request.getServletPath();
-        if (request.getRequestURI().contains("export")){
+        if (request.getRequestURI().contains("report")){
             return true;
         }
         if (path.matches(RequestPath.LOGIN_PATH.path) || path.matches(RequestPath.ENGINE_TOKEN_PATH.path)
