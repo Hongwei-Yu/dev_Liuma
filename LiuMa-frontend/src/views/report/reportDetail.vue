@@ -36,7 +36,7 @@
                 <span>执行时长： {{report.during}}</span>
             </el-col>
           <el-col :span="5">
-           <el-button @click="downloadHtml"> <span>点击下载</span></el-button>
+           <el-button @click="download"> <span>点击下载</span></el-button>
           </el-col>
         </el-row>
     </div>
@@ -133,7 +133,7 @@ export default {
     methods: {
        download(){
          let reportId = this.$route.params.reportId;
-         let url = "/autotest/report/export/" + reportId;
+         let url = "/autotest/reports/download/" + reportId;
          window.console.log("开始下载")
          window.location.href=url;
        },
