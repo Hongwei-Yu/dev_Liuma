@@ -137,17 +137,6 @@ export default {
          window.console.log("开始下载")
          window.location.href=url;
        },
-      downloadHtml(){
-          const link = document.createElement('a')
-          document.body.appendChild(link)
-          let html = this.getHtml()
-          const url = URL.createObjectURL(new Blob([html], { type: "text/plain;charset='utf-8'" }))
-          link.href = url
-          let fileName = this.$route.params.name
-          link.download = fileName + '.html'
-          link.click()
-          window.URL.revokeObjectURL(url)
-      },
       getHtml() {
 
       },

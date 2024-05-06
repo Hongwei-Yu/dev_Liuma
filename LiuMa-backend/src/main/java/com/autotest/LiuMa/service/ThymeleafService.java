@@ -40,8 +40,12 @@ public class ThymeleafService {
         context.setVariable("updateUser",report.getUpdateUser());
         context.setVariable("passCount",report.getPassCount());
         context.setVariable("passRate",report.getPassRate());
+        context.setVariable("id",report.getId());
+        context.setVariable("projectId",report.getProjectId());
         context.setVariable("collectionList",report.getCollectionList());
-        String fileName = report.getName().replace(":",".")+".html";
+        String fileName = "D://"+"report."+report.getId()+".html";
+
+//        String fileName = "/usr/local/Liuma/reporter/"+"report."+report.getId()+".html";
         FileWriter writer = new FileWriter(fileName);
         templateEngine.process("reports",context,writer);
         writer.close();
